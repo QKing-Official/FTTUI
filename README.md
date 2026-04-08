@@ -1,7 +1,6 @@
 # FTTUI - FlavorTown Project Viewer TUI
 
-**FTTUI** is a terminal-based user interface (TUI) for browsing projects from the FlavorTown API. It allows users to explore “hot,” weekly top, all-time top, and random projects, view details, and scroll through information directly in the terminal.  
-
+**FTTUI** is a terminal-based user interface (TUI) for browsing projects from the FlavorTown Public API by jam06452. It allows users to explore hot, top (this week), top (all time) and random projects right into your shell!
 ## Features
 
 - Browse **Hot projects**, **Top this week**, **Top all time**, and **Random projects** in a 4-panel TUI layout.  
@@ -11,20 +10,19 @@
 
 ## Use Case
 
-FTTUI is designed for developers, hobbyists, and enthusiasts who want a quick terminal interface to explore projects from the FlavorTown community without leaving the terminal.  
+FTTUI is designed for the optimisation sidequest and makes it fun and easy to explore projects you would otherwise had never seen. 
 
 It’s perfect for:  
 
 - Quickly checking trending projects.  
-- Browsing project details on-the-go.  
-- Lightweight, distraction-free project exploration.  
+- Find new projects to take a look at 
 
 ## Installation
 
 ### Linux / Windows Binaries
 
-1. Download the appropriate binary or `.exe` for your system.  
-2. Run it directly from the terminal:  
+1. Download the appropriate binary or `.exe` for your system from the releases.  
+2. Run it directly from the terminal (or you double click it if you are on windows):  
 
 ```bash
 ./fttui      # Linux
@@ -36,20 +34,11 @@ fttui.exe    # Windows
 Make sure you have Rust installed. Then:
 
 ```bash
-git clone <repo_url>
-cd fttui
+git clone https://github.com/QKing-Official/FTTUI
+cd FTTUI
 cargo build --release
 ```
-The compiled binary will be in target/release/fttui.
-
-## Controls
-
-- Arrow keys / W/S – Navigate through the project list.
-- Tab – Switch between panels.
-- Enter / Space – Open project details.
-- Esc / Backspace – Close project details.
-- r – Refresh all panels from API.
-- q – Quit the application.
+The compiled binary will be in the target folder.
 
 ## Configuration
 
@@ -63,4 +52,43 @@ Default configuration:
 {
   "refresh_seconds": 30
 }
+```
+## Optimization
 
+### Memory Usage
+
+We checked memory while FTTUI ran in the background using `ps`:
+```bash
+PID     RSS     VSZ    COMMAND  
+73689   4256    2105004 fttui   # first run, cold cache  
+73906   4300    2105004 fttui   # second run, cached  
+```
+
+- First run (cold cache) → lots of HTTPS requests to fetch stuff.  
+- Second run (warm cache) → just a few requests, showing cache is working.  
+- Packets captured: 11 packets on cached run vs many more on first run.
+
+### Performance Timing
+
+We measured how long it takes with `time`:
+
+# First run (cold cache)  
+real    0m0.793s  
+
+# Second run (warm cache)  
+real    0m0.319s  
+
+Cached runs are much faster. Release build makes it even quicker.
+
+### Tools & Metrics Used
+
+| Metric            | Tool / Command |
+|------------------|----------------|
+| Memory (RSS, VSZ) | `ps -p <pid> -o pid,rss,vsz,comm` |
+| Network requests  | `tcpdump -i any port 80 or port 443` |
+| Execution time    | `time target/release/fttui` |
+
+## License
+
+This project is licensed under MIT
+Feel free to contribute!

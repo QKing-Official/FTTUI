@@ -1,0 +1,42 @@
+#!/bin/bash
+
+echo "=== STEP 1: Remove cache to simulate first run ==="
+rm -rf ~/.cache/fttui
+echo "Cache cleared."
+
+echo "=== STEP 2: Start FTTUI in background ==="
+target/release/fttui &
+PID=$!
+echo "FTTUI PID: $PID"
+
+# Let it start and do initial API requests
+sleep 3
+
+echo "=== STEP 3: Check memory usage (RSS in KB) ==="
+ps -p $PID -o pid,rss,vsz,comm
+
+echo "=== STEP 4: Monitor network requests for 10 seconds ==="
+sudo timeout 10 tcpdump -i any -A port 80 or port 443 &
+
+# Give it a bit to run and collect requests
+sleep 10
+
+# Stop FTTUI
+kill $PID
+echo "FTTUI stopped."
+
+echo "=== STEP 5: Run FTTUI AGAIN with cache populated ==="
+target/release/fttui &
+PID2=$!
+echo "FTTUI PID: $PID2"
+
+sleep 3
+echo "Memory usage with cache:"
+ps -p $PID2 -o pid,rss,vsz,comm
+
+echo "API requests with cache (should be minimal):"
+sudo timeout 10 tcpdump -i any -A port 80 or port 443 &
+
+sleep 10
+kill $PID2
+echo "Second run stopped."
