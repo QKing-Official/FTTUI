@@ -72,11 +72,13 @@ PID     RSS     VSZ    COMMAND
 
 We measured how long it takes with `time`:
 
+```bash
 # First run (cold cache)  
 real    0m0.793s  
 
 # Second run (warm cache)  
 real    0m0.319s  
+```
 
 Cached runs are much faster. Release build makes it even quicker.
 
